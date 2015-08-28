@@ -44,6 +44,7 @@ public class AudioCuePlayer implements Runnable {
 	 * 
 	 * @param sequenceLength
 	 *            the static length of all midinotesequences in whole notes
+	 *            (i.e., the sequence length in a {@link MusicGraphNode})
 	 * @param startNode
 	 *            first node for playback
 	 * @param tempo
@@ -80,23 +81,14 @@ public class AudioCuePlayer implements Runnable {
 	@Override
 	public void run() {
 		scheduler.startPlaybackNow(500);
-		// play first two nodes
+		// play first node
 		MusicGraphNode currentNode = lastNode;
-		schedulePlayback(1, currentNode);
-		try {
-			Thread.sleep((long) (0.7 * this.checkInterval));
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-		int nextBarOffset = sequenceLength + 1;
+		System.out.println("Scheduling node: " + currentNode.getNodeName());
+		int nextBarOffset = playNode(currentNode, 1, true);
+		// play second node
 		currentNode = lastNode.getRandomConnection();
-		schedulePlayback(nextBarOffset, currentNode);
-		nextBarOffset += sequenceLength;
-		try {
-			Thread.sleep(this.checkInterval);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+		System.out.println("Scheduling node: " + currentNode.getNodeName());
+		nextBarOffset = playNode(currentNode, nextBarOffset, false);
 		// play all other nodes
 		while (running) {
 			if (currentNode == null)
@@ -104,15 +96,41 @@ public class AudioCuePlayer implements Runnable {
 			MusicGraphNode temp = currentNode.getRandomConnection(lastNode);
 			lastNode = currentNode;
 			currentNode = temp;
-			schedulePlayback(nextBarOffset, currentNode);
-			nextBarOffset += sequenceLength;
-			try {
-				Thread.sleep(this.checkInterval);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
+			System.out.println("Scheduling node: " + currentNode.getNodeName());
+			nextBarOffset = playNode(currentNode, nextBarOffset, false);
 		}
 
+	}
+
+	/**
+	 * plays all entries of the specified node
+	 * 
+	 * @param node
+	 *            the node which shall be scheduled for playback
+	 * @param nextBarOffset
+	 *            the bar for which the first entry in the node shall be
+	 *            scheduled
+	 * @param shortSleepOnFirst
+	 *            if true the method will only sleep for 70% of the time after
+	 *            scheduling the first entry
+	 * @return the next bar offset for the next invocation
+	 */
+	public int playNode(MusicGraphNode node, int nextBarOffset,
+			boolean shortSleepOnFirst) {
+		int entryCounter = 0;
+		int noOfEntries = node.getNumberOfEntries();
+		MusicGraphNodeEntry currentEntry;
+		while (entryCounter < noOfEntries) {
+			currentEntry = node.getEntries().get(entryCounter);
+			schedulePlayback(nextBarOffset, currentEntry);
+			if (shortSleepOnFirst)
+				sleep(0.7 * this.checkInterval);
+			else
+				sleep(this.checkInterval);
+			nextBarOffset += sequenceLength;
+			entryCounter++;
+		}
+		return nextBarOffset;
 	}
 
 	/**
@@ -122,7 +140,7 @@ public class AudioCuePlayer implements Runnable {
 	 * @param barOffset
 	 * @param currentNode
 	 */
-	private void schedulePlayback(int barOffset, MusicGraphNode currentNode) {
+	private void schedulePlayback(int barOffset, MusicGraphNodeEntry currentNode) {
 		if (currentNode == null)
 			return;
 		for (MidiNoteSequence seq : currentNode.getSequences())
@@ -140,6 +158,21 @@ public class AudioCuePlayer implements Runnable {
 	 */
 	public void terminate() {
 		running = false;
+	}
+
+	/**
+	 * sleeps for the specified time in ms. InterruptedExceptions are caught and
+	 * the current thread is interrupted again.
+	 * 
+	 * @param ms
+	 *            duration
+	 */
+	private void sleep(double ms) {
+		try {
+			Thread.sleep((long) ms);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 	}
 
 }

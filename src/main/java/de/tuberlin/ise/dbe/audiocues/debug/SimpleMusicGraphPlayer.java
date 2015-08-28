@@ -29,7 +29,7 @@ public class SimpleMusicGraphPlayer {
 		metricMonitor.start();
 
 		MusicGraphNode startNode = SampleMusicGraphBuilder.buildGraph();
-		AudioCuePlayer player = new AudioCuePlayer(16, startNode, 138,
+		AudioCuePlayer player = new AudioCuePlayer(2, startNode, 138,
 				metricMonitor);
 		player.changeInstrument(0, Instruments.Synth.Pad_2_warm);
 		player.changeInstrument(1, Instruments.Synth.Lead_8_bass);
