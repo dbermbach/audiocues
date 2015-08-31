@@ -4,7 +4,7 @@
 package de.tuberlin.ise.dbe.audiocues;
 
 import de.tuberlin.ise.dbe.metrics.MetricMonitor;
-import de.tuberlin.ise.dbe.metrics.analyzers.QuadraticMetricEventAnalyzer;
+import de.tuberlin.ise.dbe.metrics.analyzers.LinearMetricEventAnalyzer;
 import de.tuberlin.ise.dbe.metrics.consumers.MockMonitorConsumer;
 import de.tuberlin.ise.dbe.midi.instruments.Instruments;
 import de.tuberlin.ise.monitoring.generators.Distribution;
@@ -21,14 +21,14 @@ public class AudioCueStarter {
 	 */
 	public static void main(String[] args) throws Exception {
 		MetricMonitor metricMonitor = new MetricMonitor();
-//		metricMonitor.addAnalyzer(0, new LinearMetricEventAnalyzer(0, 100));
-		metricMonitor.addAnalyzer(0, new QuadraticMetricEventAnalyzer(0, 100));
+		metricMonitor.addAnalyzer(0, new LinearMetricEventAnalyzer(0, 100));
+//		metricMonitor.addAnalyzer(0, new QuadraticMetricEventAnalyzer(0, 100));
 //		metricMonitor.addMetricConsumer(new BinaryMetricConsumer(5000,
 //				true, metricMonitor));
 		metricMonitor.addMetricConsumer(new MockMonitorConsumer(1000, Distribution.SIM_CHAINED, metricMonitor));
 		metricMonitor.start();
 
-		MusicGraphNode startNode = SampleMusicGraphBuilder.buildGraph();
+		MusicGraphNode startNode = SampleMusicGraphBuilderDeterministic.buildGraph();
 		AudioCuePlayer player = new AudioCuePlayer(2, startNode, 138,
 				metricMonitor);
 		player.changeInstrument(0, Instruments.Synth.Pad_2_warm);
