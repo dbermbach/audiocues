@@ -193,7 +193,7 @@ public class LocalGenerator {
 				double y = -21.25 * Math.pow(x, 4) + 162.5 * Math.pow(x, 3)
 						- 388.75 * Math.pow(x, 2) + 317.5 * x - 10;
 				metricsQueue.add(new TimestampedValue<Double>(
-						new Date(current), y));
+						new Date(current), Math.max(y,-10)));
 				current += intervalInMilliseconds;
 			}
 		}
@@ -213,7 +213,7 @@ public class LocalGenerator {
 				double y = -7.5 * Math.pow(x, 3) + 27.143 * Math.pow(x, 2)
 						+ 13.929 * x - 2.7143;
 				metricsQueue.add(new TimestampedValue<Double>(
-						new Date(current), y));
+						new Date(current), Math.max(y,-10)));
 				current += intervalInMilliseconds;
 			}
 		}
@@ -288,7 +288,7 @@ public class LocalGenerator {
 				double y = -21.25 * Math.pow(x, 4) + 162.5 * Math.pow(x, 3)
 						- 388.75 * Math.pow(x, 2) + 317.5 * x - 10;
 				metricsQueue.add(new TimestampedValue<Double>(
-						new Date(current), y));
+						new Date(current), Math.max(y,-10)));
 				current += intervalInMilliseconds;
 			}
 
@@ -314,7 +314,7 @@ public class LocalGenerator {
 				double y = -7.5 * Math.pow(x, 3) + 27.143 * Math.pow(x, 2)
 						+ 13.929 * x - 2.7143;
 				metricsQueue.add(new TimestampedValue<Double>(
-						new Date(current), y));
+						new Date(current), Math.max(y,-10)));
 				current += intervalInMilliseconds;
 			}
 
