@@ -233,7 +233,8 @@ public class LocalGenerator {
 
 			// Simulation 1
 			// section 1
-			System.out.println("LocalGenerator: Simulation 1 (" + Math.round(simulationlength/1000) + "s)");
+			System.out.println("LocalGenerator: Simulation 1 ("
+					+ Math.round(simulationlength / 1000) + "s)");
 			while (current < startTime.getTime() + 1 * sectionlength) {
 				metricsQueue.add(new TimestampedValue<Double>(
 						new Date(current), -10d));
@@ -265,7 +266,8 @@ public class LocalGenerator {
 			}
 
 			// Pause 1 of 2
-			System.out.println("LocalGenerator: Pause 1 (" + Math.round(pauselength/1000) + "s)");
+			System.out.println("LocalGenerator: Pause 1 ("
+					+ Math.round(pauselength / 1000) + "s)");
 			while (current < startTime.getTime() + simulationlength
 					+ pauselength) {
 				metricsQueue.add(new TimestampedValue<Double>(
@@ -274,11 +276,12 @@ public class LocalGenerator {
 			}
 
 			// Simulation 2
-			System.out.println("LocalGenerator: Simulation 2 (" + Math.round(simulationlength/1000) + "s)");
+			System.out.println("LocalGenerator: Simulation 2 ("
+					+ Math.round(simulationlength / 1000) + "s)");
 			while (current < startTime.getTime() + 2 * simulationlength
 					+ pauselength) {
-				double x = (double) (current - startTime.getTime() + 2
-						* simulationlength + pauselength)
+				double x = (double) (current - (startTime.getTime() + 1
+						* simulationlength + pauselength))
 						/ (double) simulationlength * 5; // normalization to
 															// [0,5]
 				// -21.25x^4 + 162.5x3 - 388.75x2 + 317.5x - 10
@@ -290,7 +293,8 @@ public class LocalGenerator {
 			}
 
 			// Pause 2 of 2
-			System.out.println("LocalGenerator: Pause 2 (" + Math.round(pauselength/1000) + "s)");
+			System.out.println("LocalGenerator: Pause 2 ("
+					+ Math.round(pauselength / 1000) + "s)");
 			while (current < startTime.getTime() + 2 * simulationlength + 2
 					* pauselength) {
 				metricsQueue.add(new TimestampedValue<Double>(
@@ -299,11 +303,13 @@ public class LocalGenerator {
 			}
 
 			// Simulation 3
-			System.out.println("LocalGenerator: Simulation 3 (" + Math.round(simulationlength/1000) + "s)");
+			System.out.println("LocalGenerator: Simulation 3 ("
+					+ Math.round(simulationlength / 1000) + "s)");
 			while (current < endTime.getTime()) {
-				double x = (double) (current - startTime.getTime() + 2
-						* simulationlength + 2 * pauselength)
-						/ (double) simulationlength * 5; // normalization to [0,5]
+				double x = (double) (current - (startTime.getTime() + 2
+						* simulationlength + 2 * pauselength))
+						/ (double) simulationlength * 5; // normalization to
+															// [0,5]
 				// -7.5x3 + 27.143x2 + 13.929x - 2.7143
 				double y = -7.5 * Math.pow(x, 3) + 27.143 * Math.pow(x, 2)
 						+ 13.929 * x - 2.7143;
