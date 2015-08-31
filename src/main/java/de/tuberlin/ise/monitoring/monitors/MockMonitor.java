@@ -11,7 +11,7 @@ import de.tuberlin.ise.monitoring.datastructures.TimestampedValue;
 import de.tuberlin.ise.monitoring.generators.Distribution;
 import de.tuberlin.ise.monitoring.generators.LocalGenerator;
 
-public class MockMonitor {
+public class MockMonitor{
 
 	private Queue<TimestampedValue<Double>> q;
 
