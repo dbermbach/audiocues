@@ -115,7 +115,7 @@ public class MidiScheduler {
 				if (next == null)
 					continue;
 				updateVolumeIfNecessary(next);
-				if (next.note.volume <= 10)
+				if (next.note.volume <= 15)
 					continue;
 				midioutput.startNote(next.note.channel, next.note.tone,
 						next.note.volume);

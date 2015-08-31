@@ -21,8 +21,8 @@ public class AudioCueStarter {
 	 */
 	public static void main(String[] args) throws Exception {
 		MetricMonitor metricMonitor = new MetricMonitor();
-		metricMonitor.addAnalyzer(0, new LinearMetricEventAnalyzer(0, 100));
-//		metricMonitor.addAnalyzer(0, new QuadraticMetricEventAnalyzer(0, 100));
+		metricMonitor.addAnalyzer(0, new LinearMetricEventAnalyzer(-10, 100));
+//		metricMonitor.addAnalyzer(0, new QuadraticMetricEventAnalyzer(-10, 100));
 //		metricMonitor.addMetricConsumer(new BinaryMetricConsumer(5000,
 //				true, metricMonitor));
 		metricMonitor.addMetricConsumer(new MockMonitorConsumer(1000, Distribution.SIM_CHAINED, metricMonitor));

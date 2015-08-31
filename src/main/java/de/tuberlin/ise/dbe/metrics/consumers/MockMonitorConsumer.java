@@ -21,8 +21,8 @@ import de.tuberlin.ise.monitoring.monitors.MockMonitor;
  *
  */
 public class MockMonitorConsumer extends AbstractMetricConsumer<Double> {
-	
-	private final int SIMULATION_DURATION_IN_SECONDS = 3*60;
+
+	private final int SIMULATION_DURATION_IN_SECONDS = 7 * 60;
 
 	/** asserts that values for each time range are only returned once */
 	private long latestReturnedTimestamp = new Date().getTime();
@@ -35,9 +35,10 @@ public class MockMonitorConsumer extends AbstractMetricConsumer<Double> {
 	 */
 	public MockMonitorConsumer(long pollInterval, Distribution distribution,
 			MetricMonitor monitor) {
-		super(pollInterval, Arrays.asList("localgenerator_output"), monitor);
+		super(pollInterval, Arrays.asList("localgenerator"), monitor);
 		this.mockMonitor = new MockMonitor(new Date(), new Date(
-				new Date().getTime() + SIMULATION_DURATION_IN_SECONDS * 1000), distribution);
+				new Date().getTime() + SIMULATION_DURATION_IN_SECONDS * 1000),
+				distribution);
 	}
 
 	/*
@@ -55,7 +56,11 @@ public class MockMonitorConsumer extends AbstractMetricConsumer<Double> {
 		for (TimestampedValue<Double> val : resp)
 			result.add(new MetricEvent<Double>(val.getDate().getTime(), val
 					.getValue(), super
-					.getMetricIdForDescription("localgenerator_output")));
+					.getMetricIdForDescription("localgenerator")));
+		if ((resp == null || resp.size() == 0) && !mockMonitor.hasMoreEvents()) {
+			result.add(new MetricEvent<Double>(System.currentTimeMillis(),
+					-10d, super.getMetricIdForDescription("localgenerator")));
+		}
 		latestReturnedTimestamp = end;
 		System.out.println("Received Events: " + result);
 		return result;

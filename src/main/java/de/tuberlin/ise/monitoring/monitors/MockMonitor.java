@@ -40,4 +40,14 @@ public class MockMonitor{
 
 		return result;
 	}
+
+	/**
+	 * @return
+	 * @see java.util.Collection#isEmpty()
+	 */
+	public boolean hasMoreEvents() {
+		return !this.q.isEmpty();
+	}
+	
+	
 }
