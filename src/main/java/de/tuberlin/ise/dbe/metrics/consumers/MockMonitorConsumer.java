@@ -52,7 +52,6 @@ public class MockMonitorConsumer extends AbstractMetricConsumer<Double> {
 		long end = System.currentTimeMillis();
 		List<TimestampedValue<Double>> resp = mockMonitor.getMetrics(new Date(
 				latestReturnedTimestamp), new Date(end));
-		System.out.println(end - latestReturnedTimestamp);
 		for (TimestampedValue<Double> val : resp)
 			result.add(new MetricEvent<Double>(val.getDate().getTime(), val
 					.getValue(), super
