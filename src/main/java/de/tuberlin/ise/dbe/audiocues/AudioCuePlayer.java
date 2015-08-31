@@ -146,11 +146,13 @@ public class AudioCuePlayer implements Runnable {
 		for (MidiNoteSequence seq : currentNode.getSequences())
 			scheduler.scheduleEventSequence(barOffset, 0, seq);
 		MidiNoteSequence dissonance = currentNode.getDissonanceSequence();
-		int dissVolume = (int) (metricMonitor.getCurrentMaximumScore() * 127.0 / 100.0);
-		dissonance.setVolume(dissVolume);
-		System.out.println("dissonance volume: " + dissVolume);
-		if (dissVolume > 10)
-			scheduler.scheduleEventSequence(barOffset, 0, dissonance);
+		// int dissVolume = (int) (metricMonitor.getCurrentMaximumScore() *
+		// 127.0 / 100.0);
+		// dissonance.setVolume(dissVolume);
+		// System.out.println("dissonance volume: " + dissVolume);
+		// if (dissVolume > 10)
+		scheduler.scheduleDissonanceEventSequence(barOffset, 0, dissonance,
+				metricMonitor);
 	}
 
 	/**

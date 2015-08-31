@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import de.tuberlin.ise.dbe.audiocues.AudioCuePlayer;
 import de.tuberlin.ise.dbe.midi.devices.MidiOutput;
 import de.tuberlin.ise.dbe.midi.instruments.Instrument;
 
@@ -113,17 +114,36 @@ public class MidiScheduler {
 				next = currentlyWaiting.poll();
 				if (next == null)
 					continue;
+				updateVolumeIfNecessary(next);
+				if (next.note.volume <= 10)
+					continue;
 				midioutput.startNote(next.note.channel, next.note.tone,
 						next.note.volume);
 				long endTimestamp = next.note.durationInMs
 						+ System.currentTimeMillis();
-//				System.out.println("started: " + next.note.tone + "(scheduled="+next.timestamp%1000+", actual="+System.currentTimeMillis()%1000+")");
+				// System.out.println("started: " + next.note.tone +
+				// "(scheduled="+next.timestamp%1000+", actual="+System.currentTimeMillis()%1000+")");
 				next.timestamp = endTimestamp;
 				currentlyPlaying.add(next);
-				//				System.out.println("waiting notes:"+currentlyWaiting.size());
+				// System.out.println("waiting notes:"+currentlyWaiting.size());
 			}
 		}
 
+		/**
+		 * this method is only needed for use with class {@link AudioCuePlayer}.
+		 * Will poll for current metric scores and update the volume right
+		 * before scheduling the midi event
+		 * 
+		 * @param next
+		 */
+		private void updateVolumeIfNecessary(MidiNoteContainer next) {
+			if (next.note.dissonance && next.note.metricMonitor != null) {
+				next.note.volume = (int) (next.note.metricMonitor
+						.getCurrentMaximumScore() * 127 / 100.0);
+				System.out.println("Dissonance volume: " + next.note.volume);
+			}
+
+		}
 	}
 
 	private class MidiNoteStopper implements Runnable {
@@ -162,11 +182,12 @@ public class MidiScheduler {
 				if (next == null)
 					continue;
 				midioutput.stopNote(next.note.channel, next.note.tone);
-//				System.out.println("stop: " + next.note.tone + "(scheduled="+next.timestamp%1000+", actual="+System.currentTimeMillis()%1000+")");
-//				System.out.println("playing notes: "+ currentlyPlaying.size());
+				// System.out.println("stop: " + next.note.tone +
+				// "(scheduled="+next.timestamp%1000+", actual="+System.currentTimeMillis()%1000+")");
+				// System.out.println("playing notes: "+
+				// currentlyPlaying.size());
 			}
 		}
-
 
 	}
 
