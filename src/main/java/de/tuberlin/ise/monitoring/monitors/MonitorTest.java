@@ -15,9 +15,9 @@ public class MonitorTest {
 
 
 		Date endTime = new Date();
-		Date startTime = new Date(endTime.getTime() - 10 *60* 1000); // 1 minute ago
+		Date startTime = new Date(endTime.getTime() - 3 *60* 1000); // 1 minute ago
 		
-		MockMonitor mm = new MockMonitor(startTime, endTime, Distribution.SIM1);
+		MockMonitor mm = new MockMonitor(startTime, endTime, Distribution.SIM_CHAINED);
 
 		// List<TimestampedValue<Double>> data = cwm.getEC2Metric(
 		// EC2Metrics.CPU_UTIL, "i-d1205f10", startTime, endTime);
