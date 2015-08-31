@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import de.tuberlin.ise.dbe.metrics.visualization.MetricViewer;
+
 /**
  * receives metric data (in-order, at-most-once delivery) from implementations
  * of {@link AbstractMetricConsumer}, analyzes that data and triggers actions
@@ -25,13 +27,16 @@ public class MetricMonitor implements Runnable {
 	private static Integer nextUnusedMetricId = 0;
 
 	/** holds a description for each metric Id */
-	private final Map<Integer, String> metricDescriptions = new ConcurrentHashMap<Integer, String>();
+	private final Map<Integer, String> metricDescriptions = new ConcurrentHashMap<>();
 
 	/** holds the analyzers per metric id */
-	private final Map<Integer, MetricEventAnalyzer> analyzers = new HashMap<Integer, MetricEventAnalyzer>();
+	private final Map<Integer, MetricEventAnalyzer> analyzers = new ConcurrentHashMap<>();
 
 	/** all instances that retrieve measurement data from the monitoring system */
 	private final List<AbstractMetricConsumer<? extends Number>> metricConsumers = new ArrayList<>();
+
+	/** plots the current metric and score values */
+	private final Map<Integer, MetricViewer> metricViewers = new ConcurrentHashMap<>();
 
 	/**
 	 * the current score for a given metric, i.e., key is metric id, value is a
@@ -79,10 +84,11 @@ public class MetricMonitor implements Runnable {
 						metricId = event.metricId;
 						analyzer = analyzers.get(metricId);
 					}
-					score = analyzer.assessCriticality(event); // FIXME breaks
-																// if analyzers
-																// are missing
-					latestScore.put(event.metricId, score);
+					if (analyzer != null) {
+						score = analyzer.assessCriticality(event);
+						latestScore.put(event.metricId, score);
+						metricViewers.get(metricId).addValue(event.timestamp, event.metricValue.doubleValue(), score);
+					}
 				}
 			}
 			try {
@@ -141,6 +147,10 @@ public class MetricMonitor implements Runnable {
 			id = nextUnusedMetricId++;
 		}
 		metricDescriptions.put(id, description);
+		MetricViewer viewer = new MetricViewer("MetricMonitor", description,
+				description + "_score");
+		metricViewers.put(id, viewer);
+
 		System.out.println("Registered metric \"" + description
 				+ "\" for metric id " + id);
 		return id;
