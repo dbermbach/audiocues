@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import de.tuberlin.ise.dbe.audiocues.AudioCuePlayer;
+import de.tuberlin.ise.dbe.metrics.MetricMonitor;
 import de.tuberlin.ise.dbe.midi.devices.MidiOutput;
 import de.tuberlin.ise.dbe.midi.music.MidiNoteSequence;
 import de.tuberlin.ise.dbe.midi.music.MidiTonePitch;
@@ -87,7 +89,13 @@ public class MusicalMidiScheduler extends MidiScheduler {
 			playbackIsStarted = true;
 			baseTimestamp = System.currentTimeMillis() + offset;
 			for (MidiEvent me : scheduledEvents) {
-				super.play(baseTimestamp + me.relativeTimestamp,
+				if(me.dissonance&&me.metricMonitor!=null){
+					//for use with AudioCuePlayer only
+					super.play(baseTimestamp + me.relativeTimestamp,
+							new MidiSoundEvent(me.absoluteDuration, me.channel,
+									me.volume, me.tone,me.dissonance,me.metricMonitor));
+				}
+				else super.play(baseTimestamp + me.relativeTimestamp,
 						new MidiSoundEvent(me.absoluteDuration, me.channel,
 								me.volume, me.tone));
 			}
@@ -137,7 +145,7 @@ public class MusicalMidiScheduler extends MidiScheduler {
 			long absoluteDuration, MidiTonePitch tone) {
 		if (playbackIsStarted) {
 			super.play(baseTimestamp + relativeTimestamp, new MidiSoundEvent(
-					absoluteDuration-7, channel, volume, tone));
+					absoluteDuration - 7, channel, volume, tone));
 		} else {
 			synchronized (scheduledEvents) {
 				if (playbackIsStarted) {
@@ -181,12 +189,79 @@ public class MusicalMidiScheduler extends MidiScheduler {
 
 	}
 
+	/**
+	 * this method is only needed for use with class {@link AudioCuePlayer}.
+	 * 
+	 * schedules an entire {@link MidiNoteSequence}
+	 * 
+	 * @param barNumber
+	 *            the bar number where the note shall be played starting with 1
+	 * @param denominatorOffset
+	 *            the multiples of the denominator in the bar, e.g., for a 4/4
+	 *            beat, a value of 3 will schedule the note to be played on the
+	 *            "3"
+	 * @param seq
+	 *            the {@link MidiNoteSequence}
+	 */
+	public void scheduleDissonanceEventSequence(int barNumber,
+			double denominatorOffset, MidiNoteSequence seq, MetricMonitor metricMonitor) {
+		long relativeSequenceStart = tempo.getAbsoluteDuration(1)
+				* (barNumber - 1)
+				+ tempo.getAbsoluteDuration(denominatorOffset
+						* timeSignature[1]);
+		for (Entry<Double, List<Note>> entry : seq.entrySet()) {
+			long relativeStart = tempo.getAbsoluteDuration(entry.getKey())
+					+ relativeSequenceStart;
+			for (Note n : entry.getValue()) {
+				scheduleDissonanceEvent(relativeStart, seq.getChannel(),
+						seq.getVolume(),
+						tempo.getAbsoluteDuration(n.getRelativeDuration()),
+						n.getTone(),metricMonitor);
+			}
+		}
+
+	}
+
+	/**
+	 * this method is only needed for use with class {@link AudioCuePlayer}.
+	 * 
+	 * puts the specified midi event either into a queue pending playback later
+	 * or sends it to MidiScheduler.play() directly.
+	 * 
+	 * @param relativeTimestamp
+	 * @param channel
+	 * @param volume
+	 * @param absoluteDuration
+	 * @param tone
+	 */
+	private void scheduleDissonanceEvent(long relativeTimestamp, int channel,
+			int volume, long absoluteDuration, MidiTonePitch tone, MetricMonitor metricMonitor) {
+		if (playbackIsStarted) {
+			super.play(baseTimestamp + relativeTimestamp, new MidiSoundEvent(
+					absoluteDuration - 7, channel, volume, tone,true,metricMonitor));
+		} else {
+			synchronized (scheduledEvents) {
+				if (playbackIsStarted) {
+					super.play(baseTimestamp + relativeTimestamp,
+							new MidiSoundEvent(absoluteDuration - 7, channel,
+									volume, tone,true,metricMonitor));
+				} else
+					scheduledEvents.add(new MidiEvent(relativeTimestamp,
+							absoluteDuration - 7, channel, volume, tone,true,metricMonitor));
+			}
+		}
+	}
+
 	private class MidiEvent {
 		private long relativeTimestamp;
 		private long absoluteDuration;
 		private int channel;
 		private int volume;
 		private MidiTonePitch tone;
+
+		// for AudioCuePlayer only
+		private boolean dissonance;
+		private MetricMonitor metricMonitor;
 
 		/**
 		 * @param relativeTimestamp
@@ -202,6 +277,28 @@ public class MusicalMidiScheduler extends MidiScheduler {
 			this.channel = channel;
 			this.volume = volume;
 			this.tone = tone;
+		}
+
+		/**
+		 * @param relativeTimestamp
+		 * @param absoluteDuration
+		 * @param channel
+		 * @param volume
+		 * @param tone
+		 * @param dissonance
+		 * @param metricMonitor
+		 */
+		public MidiEvent(long relativeTimestamp, long absoluteDuration,
+				int channel, int volume, MidiTonePitch tone,
+				boolean dissonance, MetricMonitor metricMonitor) {
+			super();
+			this.relativeTimestamp = relativeTimestamp;
+			this.absoluteDuration = absoluteDuration;
+			this.channel = channel;
+			this.volume = volume;
+			this.tone = tone;
+			this.dissonance = dissonance;
+			this.metricMonitor = metricMonitor;
 		}
 
 	}
