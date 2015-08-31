@@ -39,7 +39,7 @@ public class MetricViewer {
 		collection.addSeries(scoreValues);
 		chart = ChartFactory.createXYLineChart(null, "time [s]", "metric/score value", collection);
 		chart.getXYPlot().getRangeAxis().setRange(-20, 140);
-		chart.getXYPlot().getDomainAxis().setRange(0, 750);
+		chart.getXYPlot().getDomainAxis().setRange(0, 500);
 		frame = new ChartFrame(windowTitle, chart);
 		frame.pack();
 		frame.setVisible(true);

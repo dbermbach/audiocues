@@ -22,7 +22,7 @@ import de.tuberlin.ise.monitoring.monitors.MockMonitor;
  */
 public class MockMonitorConsumer extends AbstractMetricConsumer<Double> {
 
-	private final int SIMULATION_DURATION_IN_SECONDS = 7 * 60;
+	private final int SIMULATION_DURATION_IN_SECONDS = 8 * 60;
 
 	/** asserts that values for each time range are only returned once */
 	private long latestReturnedTimestamp = new Date().getTime();
