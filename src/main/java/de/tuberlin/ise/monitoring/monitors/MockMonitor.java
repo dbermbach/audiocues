@@ -15,8 +15,13 @@ public class MockMonitor{
 
 	private Queue<TimestampedValue<Double>> q;
 
-	public MockMonitor(Date startTime, Date endTime, Distribution distribution) {
+	public MockMonitor(Date startTime, Date endTime, Distribution distribution){
 		LocalGenerator gen = new LocalGenerator();
+//		try {
+//			Thread.sleep(30000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 		gen.generate(startTime, endTime, 500, distribution);
 		q = gen.getMetricsQueue();
 	}

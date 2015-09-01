@@ -3,8 +3,12 @@
  */
 package de.tuberlin.ise.dbe.midi.devices;
 
+import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Receiver;
+import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 
 import de.tuberlin.ise.dbe.midi.instruments.Instrument;
@@ -17,26 +21,40 @@ import de.tuberlin.ise.dbe.midi.music.MidiTonePitch;
  */
 public class MidiOutput {
 
-	private Synthesizer synth;
+	private Synthesizer synth = null;
+	private Receiver rec = null;
+	private MidiDevice dev = null;
 
 	private MidiChannel[] channels;
 
 	/**
+	 * Creates an instance of MidiOutput, which generates sound form midi events using the system's default Synthesizer.
 	 * @throws Exception
 	 * 
 	 */
 	public MidiOutput() throws Exception {
-		synth = MidiSystem.getSynthesizer();
-		synth.open();
-		channels = synth.getChannels();
+		this(MidiSystem.getSynthesizer());
 	}
 
 	/**
-	 * 
-	 * @return the number of supported channels. Number 9 is reserved for drums.
+	 * Creates an instance of MidiOutput, which sends midi messages to the specified Receiver. 
+	 * @param rec
+	 * @throws Exception
 	 */
-	public int getNumberOfChannels() {
-		return channels.length;
+	public MidiOutput(MidiDevice dev) throws Exception {
+	    if(dev instanceof Synthesizer){
+	    	synth = (Synthesizer)dev;
+	    	synth.open();
+	    	channels = synth.getChannels();
+	    }
+		else if (dev.getMaxReceivers() == 0){
+			this.dev = dev;
+			dev.open();
+			rec = dev.getReceiver();
+		}
+		else{
+			
+		}
 	}
 
 	/**
@@ -46,7 +64,18 @@ public class MidiOutput {
 	 * @param instrument
 	 */
 	public void setInstrument(int channel, Instrument instrument) {
-		channels[channel].programChange(instrument.getMidiCode());
+		if (synth != null) {
+			channels[channel].programChange(instrument.getMidiCode());
+		} else if (rec != null) {
+			ShortMessage myMsg = new ShortMessage();
+			try {
+				myMsg.setMessage(ShortMessage.PROGRAM_CHANGE, channel,
+						instrument.getMidiCode(), 0);
+			} catch (InvalidMidiDataException e) {
+				System.err.println("MidiOutput: Invalid Midi Message");
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -58,7 +87,18 @@ public class MidiOutput {
 	 * @param volume
 	 */
 	public void startNote(int channel, MidiTonePitch midinote, int volume) {
-		channels[channel].noteOn(midinote.midiValue(), volume);
+		if (synth != null) {
+			channels[channel].noteOn(midinote.midiValue(), volume);
+		} else if (rec != null) {
+			ShortMessage myMsg = new ShortMessage();
+			try {
+				myMsg.setMessage(ShortMessage.NOTE_ON, channel,
+						midinote.midiValue(), volume);
+			} catch (InvalidMidiDataException e) {
+				System.err.println("MidiOutput: Invalid Midi Message");
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -69,7 +109,18 @@ public class MidiOutput {
 	 * 
 	 */
 	public void stopNote(int channel, MidiTonePitch midinote) {
-		channels[channel].noteOff(midinote.midiValue());
+		if (synth != null) {
+			channels[channel].noteOff(midinote.midiValue());
+		} else if (rec != null) {
+			ShortMessage myMsg = new ShortMessage();
+			try {
+				myMsg.setMessage(ShortMessage.NOTE_OFF, channel,
+						midinote.midiValue(),0);
+			} catch (InvalidMidiDataException e) {
+				System.err.println("MidiOutput: Invalid Midi Message");
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -102,9 +153,13 @@ public class MidiOutput {
 	 * terminates this {@link MidiOutput}
 	 */
 	public void terminate() {
-		for (MidiChannel c : channels)
-			c.allNotesOff();
-		synth.close();
+		if (synth != null) {
+			for (MidiChannel c : channels)
+				c.allNotesOff();
+			synth.close();
+		} else if (dev != null) {
+			dev.close();
+		}
 	}
 
 }

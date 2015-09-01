@@ -3,6 +3,8 @@
  */
 package de.tuberlin.ise.dbe.audiocues;
 
+import javax.sound.midi.MidiDevice;
+
 import de.tuberlin.ise.dbe.metrics.MetricMonitor;
 import de.tuberlin.ise.dbe.midi.MusicalMidiScheduler;
 import de.tuberlin.ise.dbe.midi.devices.MidiOutput;
@@ -52,12 +54,40 @@ public class AudioCuePlayer implements Runnable {
 	 * @throws Exception
 	 *             if creation of {@link MidiOutput} device fails
 	 */
+	// redundant and currently not used, but kept to maintain independence from
+	// Java Midi APIs.
 	public AudioCuePlayer(int sequenceLength, MusicGraphNode startNode,
 			int tempo, MetricMonitor metricMonitor) throws Exception {
 		this.sequenceLength = sequenceLength;
 		this.lastNode = startNode;
 		this.scheduler = new MusicalMidiScheduler(new MidiOutput(), new Tempo(
 				tempo), 4, 4);
+		this.metricMonitor = metricMonitor;
+		this.checkInterval = new Tempo(tempo)
+				.getAbsoluteDuration(sequenceLength);
+	}
+
+	/**
+	 * 
+	 * @param sequenceLength
+	 *            the static length of all midinotesequences in whole notes
+	 *            (i.e., the sequence length in a {@link MusicGraphNode})
+	 * @param startNode
+	 *            first node for playback
+	 * @param tempo
+	 *            tempo in bpm
+	 * @param dev
+	 *            Midi Device used as output
+	 * @throws Exception
+	 *             if creation of {@link MidiOutput} device fails
+	 */
+	public AudioCuePlayer(int sequenceLength, MusicGraphNode startNode,
+			int tempo, MetricMonitor metricMonitor, MidiDevice dev)
+			throws Exception {
+		this.sequenceLength = sequenceLength;
+		this.lastNode = startNode;
+		this.scheduler = new MusicalMidiScheduler(new MidiOutput(dev),
+				new Tempo(tempo), 4, 4);
 		this.metricMonitor = metricMonitor;
 		this.checkInterval = new Tempo(tempo)
 				.getAbsoluteDuration(sequenceLength);
