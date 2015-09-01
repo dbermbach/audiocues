@@ -10,6 +10,7 @@
 - Rightclick the project in project explorer and select: Configure -> Convert to Maven Project.
 
 [Execution]
+
 There are two convenient options for execution
 
 1. Directly from Eclipse:
