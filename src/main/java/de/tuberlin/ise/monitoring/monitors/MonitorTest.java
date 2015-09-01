@@ -1,8 +1,6 @@
 package de.tuberlin.ise.monitoring.monitors;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -11,7 +9,7 @@ import de.tuberlin.ise.monitoring.generators.Distribution;
 
 public class MonitorTest {
 	public static void main(String[] args) throws ParseException {
-		CloudWatchMonitor cwm = new CloudWatchMonitor();
+		//CloudWatchMonitor cwm = new CloudWatchMonitor();
 
 
 		Date endTime = new Date();
