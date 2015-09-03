@@ -47,13 +47,13 @@ public class MidiOutput {
 	    	synth.open();
 	    	channels = synth.getChannels();
 	    }
-		else if (dev.getMaxReceivers() == 0){
+		else if (dev.getMaxReceivers() != 0){
 			this.dev = dev;
 			dev.open();
 			rec = dev.getReceiver();
 		}
 		else{
-			
+			System.err.println("Device could not be initialized.");
 		}
 	}
 
@@ -71,6 +71,8 @@ public class MidiOutput {
 			try {
 				myMsg.setMessage(ShortMessage.PROGRAM_CHANGE, channel,
 						instrument.getMidiCode(), 0);
+				long timeStamp = -1;
+				rec.send(myMsg, timeStamp);
 			} catch (InvalidMidiDataException e) {
 				System.err.println("MidiOutput: Invalid Midi Message");
 				e.printStackTrace();
@@ -94,6 +96,8 @@ public class MidiOutput {
 			try {
 				myMsg.setMessage(ShortMessage.NOTE_ON, channel,
 						midinote.midiValue(), volume);
+				long timeStamp = -1;
+				rec.send(myMsg, timeStamp);
 			} catch (InvalidMidiDataException e) {
 				System.err.println("MidiOutput: Invalid Midi Message");
 				e.printStackTrace();
@@ -116,6 +120,8 @@ public class MidiOutput {
 			try {
 				myMsg.setMessage(ShortMessage.NOTE_OFF, channel,
 						midinote.midiValue(),0);
+				long timeStamp = -1;
+				rec.send(myMsg, timeStamp);
 			} catch (InvalidMidiDataException e) {
 				System.err.println("MidiOutput: Invalid Midi Message");
 				e.printStackTrace();
