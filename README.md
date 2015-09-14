@@ -1,4 +1,4 @@
-# audiocues
+# AudioCues
 
 [Setup]
 - Checkout the project from github into a local directory
