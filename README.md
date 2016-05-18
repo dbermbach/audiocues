@@ -1,4 +1,9 @@
 # AudioCues
+AudioCues is a research prototype demonstrating how gradually changing dissonances can be injected into an audio stream of (MIDI-based) ambient music to reflect changes in cloud monitoring data. Users then unconsciously become aware of these changes while being concentrated on another task.
+
+A short introductory video explaining the concepts can be found here: https://www.youtube.com/watch?v=gWJtGZOp3K0
+
+## Getting started
 
 [Setup]
 - Checkout the project from github into a local directory
@@ -21,5 +26,16 @@ Maven is configured to directly generate an executable jar with the AudioCueStar
 This jar file is located in the target directory.
 Execute it by invoking the following command in that directory: "java -jar AudioCues-0.0.1-SNAPSHOT.jar"
 
-
+## Publications
+If you use AudioCues for research purposes with a resulting publication, we would appreciate if you cite our paper:
+```TeX
+@inproceedings{bermbach_audiocues,
+ author = {David Bermbach and Jacob Eberhardt},
+ title = {Towards Audio-Visual Cues for Cloud Infrastructure Monitoring},
+ booktitle = {Proceedings of the 4th IEEE International Conference on Cloud Engineering (IC2E2016)},
+ series = {IC2E'16},
+ year = {2016},
+ publisher = {IEEE}
+}
+```
 
